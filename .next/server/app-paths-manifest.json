@@ -1,0 +1,9 @@
+{
+  "/api/customer/route": "app/api/customer/route.js",
+  "/not-found": "app/not-found.js",
+  "/(defaults)/page": "app/(defaults)/page.js",
+  "/(defaults)/customer/page": "app/(defaults)/customer/page.js",
+  "/(defaults)/addcustomer/page": "app/(defaults)/addcustomer/page.js",
+  "/(defaults)/addorder/page": "app/(defaults)/addorder/page.js",
+  "/(defaults)/document/page": "app/(defaults)/document/page.js"
+}
