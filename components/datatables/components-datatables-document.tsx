@@ -234,7 +234,7 @@ const ComponentsDatatablesDoucument = () => {
       });
     });
   }, [search]);
-  const handleAddCustomerClick = (e) => {
+  const handleAddCustomerClick = (e:any) => {
     e.stopPropagation();
     setShowAddCustomer(!showAddCustomer); // Toggle the visibility
   };
@@ -339,7 +339,7 @@ const ComponentsDatatablesDoucument = () => {
     setFiles([...files, ...newFiles]);
   };
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e:any) => {
     e.preventDefault();
   };
 
