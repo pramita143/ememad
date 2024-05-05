@@ -1,7 +1,7 @@
 import Customer from "@/models/Customer";
 import connectMongoDB from "@/config/database";
 import { NextResponse } from "next/server";
-
+import { NextRequest } from 'next/server';
 export async function POST(request: Request) {
   const {
     ctype,
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   return NextResponse.json({ message: "Customer Created" }, { status: 201 });
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { MongoClient, ObjectId } = require("mongodb");
 
   const id = request.nextUrl.searchParams.get("id");
