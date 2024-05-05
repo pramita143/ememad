@@ -457,7 +457,9 @@ const Basic = () => {
                         placeholder="Select a Customer"
                         options={options}
                         onChange={(t) => {
-                          getCustomerbyid(t.value);
+                        if (t?.value) {
+getCustomerbyid(t.value);
+}
                         }}
                       />
                     </div>
