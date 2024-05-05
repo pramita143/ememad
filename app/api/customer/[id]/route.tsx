@@ -1,7 +1,6 @@
 import connectDB from "@/config/database";
-import { NextApiResponse, NextApiRequest } from "next";
 import Customer from "@/models/Customer";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 export async function PUT(
   request: Request,
@@ -42,7 +41,7 @@ export async function PUT(
 }
 
 export async function GET(
-  request: NextApiRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
