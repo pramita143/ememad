@@ -13,38 +13,58 @@ import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import { useSelector } from "react-redux";
 import { IRootState } from "@/store";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import MaskedInput from "react-text-mask";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
+import IconXCircle from "@/components/icon/icon-x-circle";
+import IconPencil from "@/components/icon/icon-pencil";
+import { C } from "@fullcalendar/core/internal-common";
+
+const MySwal = withReactContent(Swal);
+
+const showMessage8 = () => {
+  MySwal.fire({
+    title: "You can upload only one file or remove last uploaded file",
+    toast: true,
+    position: "bottom-start",
+    showConfirmButton: false,
+    timer: 5000,
+    showCloseButton: true,
+  });
+};
+const getFirstName = (label: string) => label.split(" - ")[0];
+
 const rowData = [
   {
-    id: 1,
-    firstName: "Caroline",
-    lastName: "Jensen",
-    email: "carolinejensen@zidant.com",
-    dob: "2004-05-28",
-    // address: {
-    //     street: '529 Scholes Street',
-    //     city: 'Temperanceville',
-    //     zipcode: 5235,
-    //     geo: {
-    //         lat: 23.806115,
-    //         lng: 164.677197,
-    //     },
-    // },
-    phone: "+1 (821) 447-3782",
-    isActive: true,
-    age: 39,
-    company: "POLARAX",
+    id: "989",
+    documentname: "Caroline",
+    customerid: "08989090998",
+    documenttype: "driving Licene",
+    documentstatus: "2004-05-28",
+
+    validationsource: "source",
+    number: "123456",
+    issue: "989",
+    state: "POLARAX",
+    cardnumber: "999999",
+    description: "test desc",
   },
 ];
 
 const col = [
   "id",
-  "firstName",
-  "lastName",
-  "company",
-  "age",
-  "dob",
-  "email",
-  "phone",
+  "documentname",
+  "customerid",
+  "documenttype",
+  "documentstatus",
+  "validationsource",
+  "number",
+  "issue",
+  "state",
+  "cardnumber",
+  "description",
 ];
 
 const ComponentsDatatablesDoucument = () => {
@@ -58,11 +78,105 @@ const ComponentsDatatablesDoucument = () => {
   const [recordsData, setRecordsData] = useState(initialRecords);
   const [customerData, setCustomerData] = useState([]);
   const [cutomerid, setcutomerid] = useState("");
-
+  const [cutomerName, setcutomerName] = useState("");
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [hiddenFileName, setHiddenFileName] = useState("");
+  const [recordsDatasort, setRecordsDatashort] = useState("dsc");
+  const [modal2, setModal2] = useState(false);
+  const [editid, setEditid] = useState("");
+  const [deleteid, setDeleteid] = useState("");
+
+  const newDocumnetadded = () => {
+    MySwal.fire({
+      title: "New Documnet has added",
+      toast: true,
+      position: "bottom-start",
+      showConfirmButton: false,
+      timer: 5000,
+      showCloseButton: true,
+    });
+  };
+
+  const updatedDocumnet = () => {
+    MySwal.fire({
+      title: "Documnet has Updated",
+      toast: true,
+      position: "bottom-start",
+      showConfirmButton: false,
+      timer: 5000,
+      showCloseButton: true,
+    });
+  };
+
+  const deleteddocument = () => {
+    MySwal.fire({
+      title: "Documnet has Deleted",
+      toast: true,
+      position: "bottom-start",
+      showConfirmButton: false,
+      timer: 5000,
+      showCloseButton: true,
+    });
+  };
+  interface Document {
+    id: string;
+    documentname: string;
+    customername: string;
+    customerid: string;
+    documenttype: string;
+    documentstatus: string;
+
+    validationsource: string;
+    number: string;
+    issue: string;
+    state: string;
+    cardnumber: string;
+    description: string;
+  }
+  const handleDeletelick = (value: any) => {
+    setModal2(true);
+    setDeleteid(value);
+  };
+
+  const fetchRateData = async () => {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize;
+    try {
+      const response = await fetch("/api/document");
+      if (!response.ok) {
+        throw new Error("Failed to fetch customer data");
+      }
+      const data = await response.json();
+
+      const formattedRate = data.documents.map((document: Document) => ({
+        id: document._id,
+        documentname: document.documentname,
+        customername: document.customername,
+        customerid: document.customerid,
+        documenttype: document.documenttype,
+        documentstatus: document.documentstatus,
+
+        validationsource: document.validationsource,
+        number: document.number,
+        issue: document.issue,
+        state: document.state,
+        cardnumber: document.cardnumber,
+        description: document.description,
+      }));
+      if (recordsDatasort == "dsc") {
+        setInitialRecords(formattedRate.reverse());
+      }
+      setLoading(false);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    fetchRateData();
+  }, []);
+
   const isRtl =
     useSelector((state: IRootState) => state.themeConfig.rtlClass) === "rtl";
   const [date1, setDate1] = useState<any>("2022-07-05");
@@ -103,16 +217,19 @@ const ComponentsDatatablesDoucument = () => {
 
   useEffect(() => {
     setInitialRecords(() => {
-      return rowData.filter((item: any) => {
+      return initialRecords.filter((item: any) => {
         return (
           item.id.toString().includes(search.toLowerCase()) ||
-          item.firstName.toLowerCase().includes(search.toLowerCase()) ||
-          item.lastName.toLowerCase().includes(search.toLowerCase()) ||
-          item.company.toLowerCase().includes(search.toLowerCase()) ||
-          item.email.toLowerCase().includes(search.toLowerCase()) ||
-          item.age.toString().toLowerCase().includes(search.toLowerCase()) ||
-          item.dob.toLowerCase().includes(search.toLowerCase()) ||
-          item.phone.toLowerCase().includes(search.toLowerCase())
+          item.documentname.toLowerCase().includes(search.toLowerCase()) ||
+          item.customerid.toString().includes(search.toLowerCase()) ||
+          item.documenttype.toLowerCase().includes(search.toLowerCase()) ||
+          item.documentstatus.toLowerCase().includes(search.toLowerCase()) ||
+          item.validationsource.toLowerCase().includes(search.toLowerCase()) ||
+          item.number.toString().includes(search.toLowerCase()) ||
+          item.issue.toString().includes(search.toLowerCase()) ||
+          item.state.toLowerCase().includes(search.toLowerCase()) ||
+          item.cardnumber.toString().includes(search.toLowerCase()) ||
+          item.description.toLowerCase().includes(search.toLowerCase())
         );
       });
     });
@@ -138,7 +255,35 @@ const ComponentsDatatablesDoucument = () => {
     return "";
   };
 
+  const handelDeleteData = async () => {
+    setModal2(false);
+
+    const res = await fetch(`/api/document/${deleteid}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      fetchRateData();
+      deleteddocument();
+    }
+  };
+
   const getcustomeval = () => {
+    setEditid("");
+    setFiles([]);
+    setFormData({
+      customerid: "",
+      customername: "", // Added missing property
+      documentname: "",
+      documenttype: "",
+      documentstatus: "",
+      validationsource: "",
+      number: "",
+      issue: "",
+      state: "",
+      cardnumber: "",
+      description: "",
+    });
     const options = customerData.map((customer) => ({
       value: customer._id,
       label: `${customer.firstName} ${
@@ -149,12 +294,19 @@ const ComponentsDatatablesDoucument = () => {
     setModal1(true);
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
-    const newFiles = Array.from(selectedFiles);
-    setFiles([...files, ...newFiles]);
-  };
+    const newFiles = Array.from(selectedFiles!);
 
+    // Check if adding new files exceeds the limit
+    if (files.length + newFiles.length > 1) {
+      showMessage8();
+    } else {
+      // Add new files if limit is not exceeded
+      setFiles([...files, ...newFiles]);
+      setHiddenFileName(newFiles[0].name);
+    }
+  };
   const handleUpload = async () => {
     if (files.length === 0) {
       console.error("No files selected");
@@ -172,7 +324,7 @@ const ComponentsDatatablesDoucument = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(response.data);
+
       // Clear the files after successful upload
       setFiles([]);
     } catch (error) {
@@ -199,11 +351,12 @@ const ComponentsDatatablesDoucument = () => {
     const updatedFiles = [...files];
     updatedFiles.splice(index, 1);
     setFiles(updatedFiles);
+    setHiddenFileName("");
   };
 
   const exportTable = (type: any) => {
     let columns: any = col;
-    let records = rowData;
+    let records = initialRecords;
     let filename = "table";
 
     let newVariable: any;
@@ -319,6 +472,9 @@ const ComponentsDatatablesDoucument = () => {
       .join(" ");
   };
   const [formData, setFormData] = useState({
+    customerid: "",
+    customername: "",
+    documentname: "",
     documenttype: "",
     documentstatus: "",
     validationsource: "",
@@ -330,7 +486,7 @@ const ComponentsDatatablesDoucument = () => {
   });
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    console.log(value);
+
     setFormData((formData) => ({
       ...formData,
       [name]: value,
@@ -341,15 +497,77 @@ const ComponentsDatatablesDoucument = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       expirydate: date1,
-      id: cutomerid,
+      customerid: cutomerid,
+      customername: cutomerName,
+      documentname: hiddenFileName,
     }));
   }, [cutomerid]);
 
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
+    if (!editid) {
+      try {
+        const res = await fetch("http://localhost:3000/api/document", {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
 
-    console.log(formData);
+        if (res.ok) {
+          setModal1(false);
+          fetchRateData();
+          newDocumnetadded();
+        } else {
+          throw new Error("Failed to create a document");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      try {
+        const url = "http://localhost:3000/api/document/" + editid;
+
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (!res.ok) {
+          throw new Error("failed to update product:");
+        }
+        if (res.ok) {
+          setModal1(false);
+          fetchRateData();
+          updatedDocumnet();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
+  const handleUpdateClick = async (value: any) => {
+    setModal1(true);
+    setEditid(value);
+    const res = await fetch(`/api/document/${value}`, {
+      method: "GET",
+    });
+    const data = await res.json();
+
+    setFormData(data.document);
+    if (res.ok) {
+      //fetchRateData();
+    }
+  };
+
+  const handleDeleteClick = (_id: any): void => {
+    throw new Error("Function not implemented.");
+  };
+
   return (
     <div className="panel mt-6">
       <h5 className="mb-5 text-lg font-semibold dark:text-white-light">
@@ -524,54 +742,87 @@ const ComponentsDatatablesDoucument = () => {
                                 <div>
                                   <div className="flex">
                                     <div className="w-11/12">
-                                      <Select
-                                        placeholder="Select an option"
-                                        options={options}
-                                        onChange={(t) => {
-                                          console.log(t.value);
-                                          setcutomerid(t.value);
-                                        }}
+                                      {editid ? (
+                                        <label>{formData.customername}</label>
+                                      ) : (
+                                        <div className="flex ">
+                                          <div className="w-11/12">
+                                            <Select
+                                              placeholder="Select an option"
+                                              options={options}
+                                              onChange={(t) => {
+                                                const customername =
+                                                  getFirstName(t.label);
+                                                setcutomerName(customername);
+                                                setcutomerid(t.value);
+                                              }}
+                                            />
+                                          </div>
+
+                                          <div className="flex w-1/12 items-center justify-center">
+                                            <button
+                                              onClick={handleAddCustomerClick}
+                                            >
+                                              <svg
+                                                className="h-8 w-8 text-gray-500"
+                                                width={24}
+                                                height={24}
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={2}
+                                                stroke="currentColor"
+                                                fill="none"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                              >
+                                                {" "}
+                                                <path
+                                                  stroke="none"
+                                                  d="M0 0h24v24H0z"
+                                                />{" "}
+                                                <line
+                                                  x1={12}
+                                                  y1={5}
+                                                  x2={12}
+                                                  y2={19}
+                                                />{" "}
+                                                <line
+                                                  x1={16}
+                                                  y1={15}
+                                                  x2={12}
+                                                  y2={19}
+                                                />{" "}
+                                                <line
+                                                  x1={8}
+                                                  y1={15}
+                                                  x2={12}
+                                                  y2={19}
+                                                />
+                                              </svg>
+                                            </button>{" "}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      <input
+                                        type="hidden"
+                                        name="customerid"
+                                        value={formData.customerid}
+                                        onChange={handleChange}
+                                      />
+                                      <input
+                                        type="hidden"
+                                        name="customername"
+                                        value={formData.customername}
+                                        onChange={handleChange}
+                                      />
+                                      <input
+                                        type="hidden"
+                                        name="documentname"
+                                        value={hiddenFileName}
+                                        onChange={handleChange}
                                       />
                                     </div>
-                                    <div className="flex w-1/12 items-center justify-center">
-                                      <button onClick={handleAddCustomerClick}>
-                                        <svg
-                                          className="h-8 w-8 text-gray-500"
-                                          width={24}
-                                          height={24}
-                                          viewBox="0 0 24 24"
-                                          strokeWidth={2}
-                                          stroke="currentColor"
-                                          fill="none"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                        >
-                                          {" "}
-                                          <path
-                                            stroke="none"
-                                            d="M0 0h24v24H0z"
-                                          />{" "}
-                                          <line
-                                            x1={12}
-                                            y1={5}
-                                            x2={12}
-                                            y2={19}
-                                          />{" "}
-                                          <line
-                                            x1={16}
-                                            y1={15}
-                                            x2={12}
-                                            y2={19}
-                                          />{" "}
-                                          <line
-                                            x1={8}
-                                            y1={15}
-                                            x2={12}
-                                            y2={19}
-                                          />
-                                        </svg>
-                                      </button>{" "}
-                                    </div>
+
                                     {showAddCustomer && (
                                       <div className="w-45 absolute right-10 mt-10 border border-gray-200 bg-white p-4">
                                         <Link href={"/addcustomer"}>
@@ -621,6 +872,7 @@ const ComponentsDatatablesDoucument = () => {
                                   className="form-select text-white-dark"
                                   name="documenttype"
                                   onChange={handleChange}
+                                  value={formData.documenttype}
                                 >
                                   <option>Driver's license</option>
                                   <option>Passport</option>
@@ -638,6 +890,7 @@ const ComponentsDatatablesDoucument = () => {
                                   className="form-select text-white-dark"
                                   name="documentstatus"
                                   onChange={handleChange}
+                                  value={formData.documentstatus}
                                 >
                                   <option>pending</option>
                                   <option>approved</option>
@@ -658,6 +911,7 @@ const ComponentsDatatablesDoucument = () => {
                                   placeholder="Enter validation source"
                                   onChange={handleChange}
                                   className="form-input"
+                                  value={formData.validationsource}
                                 />
                               </div>
 
@@ -669,6 +923,7 @@ const ComponentsDatatablesDoucument = () => {
                                   name="number"
                                   className="form-input"
                                   onChange={handleChange}
+                                  value={formData.number}
                                 />
                               </div>
 
@@ -680,6 +935,7 @@ const ComponentsDatatablesDoucument = () => {
                                   name="issue"
                                   className="form-input"
                                   onChange={handleChange}
+                                  value={formData.issue}
                                 />
                               </div>
 
@@ -690,6 +946,7 @@ const ComponentsDatatablesDoucument = () => {
                                   className="form-select text-white-dark"
                                   onChange={handleChange}
                                   name="state"
+                                  value={formData.state}
                                 >
                                   <option value="ACT">ACT</option>
                                   <option value="NSW">NSW</option>
@@ -704,12 +961,35 @@ const ComponentsDatatablesDoucument = () => {
 
                               <div>
                                 <label htmlFor="groupFname">Card Number</label>
-                                <input
+                                <MaskedInput
                                   id="groupFname"
                                   type="text"
                                   name="cardnumber"
+                                  value={formData.cardnumber}
                                   className="form-input"
+                                  placeholder="__-__-__-__-__"
                                   onChange={handleChange}
+                                  mask={[
+                                    /\d/,
+                                    /\d/,
+                                    /\d/,
+                                    /\d/,
+                                    " ",
+                                    /\d/,
+                                    /\d/,
+                                    /\d/,
+                                    /\d/,
+                                    " ",
+                                    /\d/,
+                                    /\d/,
+                                    /\d/,
+                                    /\d/,
+                                    " ",
+                                    /\d/,
+                                    /\d/,
+                                    /\d/,
+                                    /\d/,
+                                  ]}
                                 />
                               </div>
 
@@ -765,6 +1045,7 @@ const ComponentsDatatablesDoucument = () => {
                                   className="form-textarea"
                                   name="description"
                                   onChange={handleChange}
+                                  value={formData.description}
                                 ></textarea>
                               </div>
 
@@ -835,18 +1116,63 @@ const ComponentsDatatablesDoucument = () => {
           records={recordsData}
           columns={[
             { accessor: "id", title: "#", sortable: true },
-            { accessor: "firstName", sortable: true },
-            { accessor: "lastName", sortable: true },
-            { accessor: "company", title: "Company", sortable: true },
-            { accessor: "age", title: "Age", sortable: true },
+            { accessor: "documentname", sortable: true },
+            { accessor: "customername", sortable: true },
+            { accessor: "documenttype", sortable: true },
+
             {
-              accessor: "dob",
-              title: "Start Date",
+              accessor: "documentstatus",
+              title: "Status",
               sortable: true,
-              render: ({ dob }) => <div>{formatDate(dob)}</div>,
+              render: (record) => {
+                let bgColorClass = "";
+                if (record.documentstatus === "expired") {
+                  bgColorClass = "bg-red-500 rounded-md p-2"; // Red for expired
+                } else if (record.documentstatus === "rejected") {
+                  bgColorClass = "bg-yellow-500 rounded-md p-2"; // Yellow for rejected
+                } else {
+                  bgColorClass = "bg-green-500 rounded-md p-2"; // Green for other statuses
+                }
+                return (
+                  <span className={bgColorClass}>{record.documentstatus}</span>
+                );
+              },
             },
-            { accessor: "email", sortable: true },
-            { accessor: "phone", sortable: true },
+
+            { accessor: "number", sortable: true },
+            { accessor: "issue", sortable: true },
+
+            { accessor: "state", sortable: true },
+            { accessor: "cardnumber", sortable: true },
+            { accessor: "description", sortable: true },
+            {
+              accessor: "action",
+              title: "Action",
+              titleClassName: "!text-center",
+              render: (row) => (
+                <div className="mx-auto flex w-max items-center gap-4">
+                  <Tippy content="Edit Document">
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateClick(row.id)}
+                      className="btn btn-primary bg-primary"
+                    >
+                      <IconPencil />
+                    </button>
+                  </Tippy>
+
+                  <Tippy content="Delete Document">
+                    <button
+                      type="button"
+                      onClick={() => handleDeletelick(row.id)}
+                      className="btn btn-primary bg-red-500"
+                    >
+                      <IconXCircle />
+                    </button>
+                  </Tippy>
+                </div>
+              ),
+            },
           ]}
           totalRecords={initialRecords.length}
           recordsPerPage={pageSize}
@@ -862,6 +1188,68 @@ const ComponentsDatatablesDoucument = () => {
           }
         />
       </div>
+
+      <Transition appear show={modal2} as={Fragment}>
+        <Dialog as="div" open={modal2} onClose={() => setModal2(false)}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0" />
+          </Transition.Child>
+          <div className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60">
+            <div className="flex min-h-screen items-center justify-center px-4">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel
+                  as="div"
+                  className="panel my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark"
+                >
+                  <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                    <h5 className="text-lg font-bold">Delete</h5>
+                    <button
+                      type="button"
+                      className="text-white-dark hover:text-dark"
+                      onClick={() => setModal2(false)}
+                    ></button>
+                  </div>
+                  <div className="p-5">
+                    <p>Do you want to delete this Document?</p>
+                    <div className="mt-8 flex items-center justify-end">
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={() => setModal2(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                        onClick={() => handelDeleteData()}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 };

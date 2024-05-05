@@ -1,6 +1,7 @@
 {
   "/icon.png/route": "app/icon.png/route.js",
   "/api/customer/route": "app/api/customer/route.js",
+  "/api/document/route": "app/api/document/route.js",
   "/(defaults)/page": "app/(defaults)/page.js",
   "/(defaults)/document/page": "app/(defaults)/document/page.js"
 }

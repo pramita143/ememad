@@ -215,7 +215,7 @@ const Sidebar = () => {
               </h2>
 
               <li className="menu nav-item">
-                <Link href="/tables" className="group">
+                <Link href="/rate" className="group">
                   <div className="flex items-center">
                     <IconMenuTables className="shrink-0 group-hover:!text-primary" />
                     <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">

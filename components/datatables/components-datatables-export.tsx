@@ -1,11 +1,21 @@
 "use client";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import sortBy from "lodash/sortBy";
 import IconFile from "@/components/icon/icon-file";
 import IconPrinter from "@/components/icon/icon-printer";
 import IconPlus from "../icon/icon-plus";
 import Link from "next/link";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
+import IconXCircle from "@/components/icon/icon-x-circle";
+import IconPencil from "@/components/icon/icon-pencil";
+import { useRouter } from "next/navigation";
+import { Dialog, Transition, Tab } from "@headlessui/react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
+const MySwal = withReactContent(Swal);
 
 const col1 = [
   "_id",
@@ -19,6 +29,7 @@ const col1 = [
 ];
 
 const ComponentsDatatablesExport = () => {
+  const router = useRouter();
   const rowData = [
     {
       _id: "123456789",
@@ -54,6 +65,8 @@ const ComponentsDatatablesExport = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [deleteid, setDeleteid] = useState("");
+  const [modal2, setModal2] = useState(false);
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
     columnAccessor: "_id",
     direction: "asc",
@@ -71,39 +84,48 @@ const ComponentsDatatablesExport = () => {
     city: string;
   }
 
-  useEffect(() => {
+  const deletedCustomer = () => {
+    MySwal.fire({
+      title: "Customer has Deleted",
+      toast: true,
+      position: "bottom-start",
+      showConfirmButton: false,
+      timer: 5000,
+      showCloseButton: true,
+    });
+  };
+  const fetchCustomerData = async () => {
     const from = (page - 1) * pageSize;
     const to = from + pageSize;
-    const fetchCustomerData = async () => {
-      try {
-        const response = await fetch("/api/customer"); // Assuming API endpoint is relative
-        if (!response.ok) {
-          throw new Error("Failed to fetch customer data");
-        }
-        const data = await response.json();
-
-        const formattedCustomers = data.customer.map((customer: Customer) => ({
-          _id: customer._id,
-          firstName: customer.firstName,
-          lastName: customer.lastName,
-          mobile: customer.mobile,
-          dob: customer.dob,
-          email: customer.email,
-          country: customer.country,
-          state: customer.state,
-          city: customer.city,
-        }));
-        if (recordsDatasort == "dsc") {
-          setInitialRecords(formattedCustomers);
-          setRecordsData([...initialRecords.slice(from, to)]);
-        }
-      } catch (error) {
-        setLoading(false);
+    try {
+      const response = await fetch("/api/customer"); // Assuming API endpoint is relative
+      if (!response.ok) {
+        throw new Error("Failed to fetch customer data");
       }
-    };
+      const data = await response.json();
 
+      const formattedCustomers = data.customer.map((customer: Customer) => ({
+        _id: customer._id,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        mobile: customer.mobile,
+        dob: customer.dob,
+        email: customer.email,
+        country: customer.country,
+        state: customer.state,
+        city: customer.city,
+      }));
+
+      setInitialRecords(formattedCustomers);
+      setRecordsData([...initialRecords.slice(from, to)]);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchCustomerData();
-  }, [page, pageSize, initialRecords]);
+  }, []);
 
   useEffect(() => {
     const data = sortBy(initialRecords, sortStatus.columnAccessor);
@@ -131,6 +153,19 @@ const ComponentsDatatablesExport = () => {
       });
     });
   }, [search]);
+
+  const handelDeleteData = async () => {
+    setModal2(false);
+    console.log(deleteid);
+    const res = await fetch(`/api/customer/${deleteid}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      fetchCustomerData();
+      deletedCustomer();
+    }
+  };
 
   const exportTable = (type: any) => {
     let columns: any = col1;
@@ -251,6 +286,16 @@ const ComponentsDatatablesExport = () => {
       .map((s: any) => s.charAt(0).toUpperCase() + s.substring(1))
       .join(" ");
   };
+
+  const handleUpdateClick = (id: any): void => {
+    router.push("/editcustomer/" + id);
+  };
+
+  const handleDeletelick = (value: any) => {
+    setModal2(true);
+    setDeleteid(value);
+  };
+
   return (
     <div className="panel mt-6">
       <h5 className="mb-5 text-lg font-semibold dark:text-white-light">
@@ -316,6 +361,37 @@ const ComponentsDatatablesExport = () => {
             { accessor: "country", title: "Country", sortable: true },
             { accessor: "state", title: "State", sortable: true },
             { accessor: "city", title: "City", sortable: true },
+            {
+              accessor: "action",
+              title: "Action",
+              titleClassName: "!text-center",
+              render: (row) => (
+                <div
+                  key={row._id}
+                  className="mx-auto flex w-max items-center gap-4"
+                >
+                  <Tippy content="Edit Customer">
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateClick(row._id)}
+                      className="btn btn-primary bg-primary"
+                    >
+                      <IconPencil />
+                    </button>
+                  </Tippy>
+
+                  <Tippy content="Delete Customer">
+                    <button
+                      type="button"
+                      onClick={() => handleDeletelick(row._id)}
+                      className="btn btn-primary bg-red-500"
+                    >
+                      <IconXCircle />
+                    </button>
+                  </Tippy>
+                </div>
+              ),
+            },
           ]}
           totalRecords={initialRecords.length}
           recordsPerPage={pageSize}
@@ -331,6 +407,67 @@ const ComponentsDatatablesExport = () => {
           }
         />
       </div>
+      <Transition appear show={modal2} as={Fragment}>
+        <Dialog as="div" open={modal2} onClose={() => setModal2(false)}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0" />
+          </Transition.Child>
+          <div className="fixed inset-0 z-[999] overflow-y-auto bg-[black]/60">
+            <div className="flex min-h-screen items-center justify-center px-4">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel
+                  as="div"
+                  className="panel my-8 w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark"
+                >
+                  <div className="flex items-center justify-between bg-[#fbfbfb] px-5 py-3 dark:bg-[#121c2c]">
+                    <h5 className="text-lg font-bold">Delete</h5>
+                    <button
+                      type="button"
+                      className="text-white-dark hover:text-dark"
+                      onClick={() => setModal2(false)}
+                    ></button>
+                  </div>
+                  <div className="p-5">
+                    <p>Do you want to delete this Customer?</p>
+                    <div className="mt-8 flex items-center justify-end">
+                      <button
+                        type="button"
+                        className="btn btn-outline-danger"
+                        onClick={() => setModal2(false)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                        onClick={() => handelDeleteData()}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 };
