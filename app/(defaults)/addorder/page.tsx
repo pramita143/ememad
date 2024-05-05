@@ -350,7 +350,7 @@ const Basic = () => {
     }));
   };
 
-  const handleAddCustomerClick = (e) => {
+  const handleAddCustomerClick = (e: any) => {
     e.stopPropagation();
     setShowAddCustomer(!showAddCustomer); // Toggle the visibility
   };
