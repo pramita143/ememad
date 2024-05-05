@@ -152,7 +152,7 @@ const ComponentsDatatablesDoucument = () => {
       const data = await response.json();
 
       const formattedRate = data.documents.map((document: Document) => ({
-        id: document._id,
+        id: document.id,
         documentname: document.documentname,
         customername: document.customername,
         customerid: document.customerid,
