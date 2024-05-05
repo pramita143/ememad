@@ -327,7 +327,7 @@ const Basic = () => {
         const custval = data.customer;
         setCustomerData(data.customer);
 
-        const option = custval.map((customer) => ({
+        const option = custval.map((customer: any) => ({
           value: customer._id,
           label: `${customer.firstName} ${
             customer.middleName ? customer.middleName + " " : ""
