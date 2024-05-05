@@ -453,15 +453,17 @@ const Basic = () => {
                   <label htmlFor="ctnSelect1">Customer</label>
                   <div className="flex">
                     <div className="w-11/12">
-                      <Select
-                        placeholder="Select a Customer"
-                        options={options}
-                        onChange={(t) => {
-                        if (t?.value) {
+
+<Select
+placeholder="Select a Customer"
+options={options}
+onChange={(t: Option | null) => {
+if (t?.value) {
 getCustomerbyid(t.value);
 }
-                        }}
-                      />
+}}
+/>
+                      
                     </div>
                     <div className="flex w-1/12 items-center justify-center">
                       <button onClick={handleAddCustomerClick}>
