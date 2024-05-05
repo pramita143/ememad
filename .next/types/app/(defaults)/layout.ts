@@ -1,4 +1,4 @@
-// File: /Users/parthasarkar/Desktop/vristo-next/app/(defaults)/layout.tsx
+// File: /Users/parthasarkar/Desktop/etemad/app/(defaults)/layout.tsx
 import * as entry from '../../../../app/(defaults)/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

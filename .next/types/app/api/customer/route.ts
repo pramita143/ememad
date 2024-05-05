@@ -1,4 +1,4 @@
-// File: /Users/parthasarkar/Desktop/vristo-next/app/api/customer/route.tsx
+// File: /Users/parthasarkar/Desktop/etemad/app/api/customer/route.tsx
 import * as entry from '../../../../../app/api/customer/route.js'
 import type { NextRequest } from 'next/server.js'
 

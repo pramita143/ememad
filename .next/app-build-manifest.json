@@ -26,23 +26,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(defaults)/layout.js"
     ],
-    "/(defaults)/customer/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(defaults)/customer/page.js"
-    ],
-    "/(defaults)/addcustomer/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/(defaults)/addcustomer/page.css",
-      "static/chunks/app/(defaults)/addcustomer/page.js"
-    ],
-    "/(defaults)/addorder/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/(defaults)/addorder/page.css",
-      "static/chunks/app/(defaults)/addorder/page.js"
-    ],
     "/(defaults)/document/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
