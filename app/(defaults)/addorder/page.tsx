@@ -454,15 +454,6 @@ const Basic = () => {
                   <div className="flex">
                     <div className="w-11/12">
 
-<Select
-placeholder="Select a Customer"
-options={options}
-onChange={(t: Option | null) => {
-if (t?.value) {
-getCustomerbyid(t.value);
-}
-}}
-/>
                       
                     </div>
                     <div className="flex w-1/12 items-center justify-center">
