@@ -369,7 +369,7 @@ const Basic = () => {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/customer/${params.id}`,
+        `api/customer/${params.id}`,
         {
           method: "PUT",
           headers: {
