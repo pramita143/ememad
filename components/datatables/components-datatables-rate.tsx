@@ -651,7 +651,7 @@ const ComponentsDatatablesRate = () => {
     event.preventDefault();
     if (!editid) {
       try {
-        const res = await fetch("http://localhost:3000/api/rate", {
+        const res = await fetch("/api/rate", {
           method: "POST",
           headers: {
             "Content-type": "application/json",
@@ -671,7 +671,7 @@ const ComponentsDatatablesRate = () => {
       }
     } else {
       try {
-        const url = "http://localhost:3000/api/rate/" + editid;
+        const url = "/api/rate/" + editid;
 
         const res = await fetch(url, {
           method: "PUT",
@@ -840,7 +840,7 @@ const ComponentsDatatablesRate = () => {
   const handelDeleteData = async () => {
     setModal2(false);
 
-    const res = await fetch(`http://localhost:3000/api/rate/${deleteid}`, {
+    const res = await fetch(`api/rate/${deleteid}`, {
       method: "DELETE",
     });
 
